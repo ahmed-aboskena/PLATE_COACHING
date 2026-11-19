@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../widgets/coaching_widgets.dart';
 import '../../widgets/phone_mockup.dart';
+import 'widgets/coach_home_widgets.dart';
+import 'widgets/coach_session_card.dart';
+import 'widgets/coach_shortcut_widget.dart';
 
 class Screen4D extends StatelessWidget {
   const Screen4D({this.large = false, super.key});
@@ -21,61 +24,7 @@ class Screen4D extends StatelessWidget {
           eyebrow: 'Good evening',
           trailing: StatusPill('COACH'),
         ),
-        UiCard(
-          child: Column(
-            children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Inside the gym now',
-                      style: TextStyle(color: Color(0xFF6B7886), fontSize: 10),
-                    ),
-                  ),
-                  StatusPill('● Live', positive: true),
-                ],
-              ),
-              const SizedBox(height: 7),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '42',
-                    style: TextStyle(
-                      color: Color(0xFFF4877B),
-                      fontSize: 44,
-                      height: 1,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'people · 42%\nQuiet',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        color: Color(0xFF6B7886),
-                        fontSize: 10,
-                        height: 1.65,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(9),
-                child: const LinearProgressIndicator(
-                  value: 0.42,
-                  minHeight: 5,
-                  backgroundColor: Color(0xFFE3ECEA),
-                  color: Color(0xFF5FD0BF),
-                ),
-              ),
-            ],
-          ),
-        ),
+        const GymOccupancyCard(),
         GridView.count(
           crossAxisCount: 4,
           shrinkWrap: true,
@@ -84,10 +33,26 @@ class Screen4D extends StatelessWidget {
           crossAxisSpacing: 6,
           childAspectRatio: 0.88,
           children: [
-            _shortcut(context, Icons.fitness_center, 'Train', '/2D'),
-            _shortcut(context, Icons.videocam, 'Online', '/9D'),
-            _shortcut(context, Icons.people_outline, 'Clients', '/5D'),
-            _shortcut(context, Icons.chat_bubble_outline, 'Messages', '/7D'),
+            CoachShortcutCard(
+              icon: Icons.fitness_center,
+              label: 'Train',
+              onTap: () => Navigator.of(context).pushNamed('/2D'),
+            ),
+            CoachShortcutCard(
+              icon: Icons.local_cafe_outlined,
+              label: 'Bar',
+              onTap: () => showAppNotice(context, 'Bar area is not available'),
+            ),
+            CoachShortcutCard(
+              icon: Icons.videocam,
+              label: 'Online',
+              onTap: () => Navigator.of(context).pushNamed('/9D'),
+            ),
+            CoachShortcutCard(
+              icon: Icons.people_outline,
+              label: 'Coaches',
+              onTap: () => Navigator.of(context).pushNamed('/8D'),
+            ),
           ],
         ),
         const Padding(
@@ -106,73 +71,21 @@ class Screen4D extends StatelessWidget {
             ],
           ),
         ),
-        _session(context, 'A', 'Ahmed M.', 'Chest day · In gym', '6:00 PM'),
-        _session(context, 'S', 'Sara K.', 'Legs · Online plan', '7:30 PM'),
+        CoachSessionCard(
+          initial: 'A',
+          name: 'Ahmed M.',
+          detail: 'Chest day · In gym',
+          time: '6:00 PM',
+          onTap: () => Navigator.of(context).pushNamed('/6D'),
+        ),
+        CoachSessionCard(
+          initial: 'S',
+          name: 'Sara K.',
+          detail: 'Legs · Online plan',
+          time: '7:30 PM',
+          onTap: () => Navigator.of(context).pushNamed('/6D'),
+        ),
       ],
-    ),
-  );
-
-  Widget _shortcut(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String route,
-  ) => InkWell(
-    onTap: () => Navigator.of(context).pushNamed(route),
-    borderRadius: BorderRadius.circular(13),
-    child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFE3ECEA)),
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 18),
-          const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 9)),
-        ],
-      ),
-    ),
-  );
-
-  Widget _session(
-    BuildContext context,
-    String initial,
-    String name,
-    String detail,
-    String time,
-  ) => InkWell(
-    onTap: () => Navigator.of(context).pushNamed('/6D'),
-    borderRadius: BorderRadius.circular(16),
-    child: UiCard(
-      padding: const EdgeInsets.all(9),
-      child: Row(
-        children: [
-          AvatarBadge(initial, small: true),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  detail,
-                  style: const TextStyle(color: Color(0xFF6B7886), fontSize: 9),
-                ),
-              ],
-            ),
-          ),
-          StatusPill(time, positive: true),
-        ],
-      ),
     ),
   );
 }

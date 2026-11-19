@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../state/coaching_scope.dart';
 import '../../widgets/coaching_widgets.dart';
 import '../../widgets/phone_mockup.dart';
+import 'controllers/member_coach_controller.dart';
+import 'widgets/member_coach_widgets.dart';
 
 class Screen8A extends StatefulWidget {
   const Screen8A({this.large = false, super.key});
@@ -14,22 +16,22 @@ class Screen8A extends StatefulWidget {
 }
 
 class _Screen8AState extends State<Screen8A> {
-  final _messageController = TextEditingController();
+  final _controller = MemberCoachController();
 
   @override
   void dispose() {
-    _messageController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   void _send() {
-    final text = _messageController.text.trim();
+    final text = _controller.messageController.text.trim();
     if (text.isEmpty) {
       showAppNotice(context, 'Write a message before sending.');
       return;
     }
     CoachingScope.of(context).addMemberMessage(text);
-    _messageController.clear();
+    _controller.clear();
   }
 
   @override
@@ -50,42 +52,7 @@ class _Screen8AState extends State<Screen8A> {
               icon: const Icon(Icons.call_outlined, size: 19),
             ),
           ),
-          UiCard(
-            padding: const EdgeInsets.all(10),
-            child: Row(
-              children: [
-                const AvatarBadge('M'),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Mohamed Ali',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
-                        'Strength & hypertrophy · Online',
-                        style: TextStyle(color: Color(0xFF6B7886), fontSize: 9),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1F9A85),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const MemberCoachHeaderCard(),
           UiCard(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: Column(
@@ -182,7 +149,7 @@ class _Screen8AState extends State<Screen8A> {
             children: [
               Expanded(
                 child: TextField(
-                  controller: _messageController,
+                  controller: _controller.messageController,
                   onSubmitted: (_) => _send(),
                   decoration: const InputDecoration(
                     hintText: 'Type a message…',

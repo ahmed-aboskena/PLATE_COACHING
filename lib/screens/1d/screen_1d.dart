@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../widgets/coaching_widgets.dart';
 import '../../widgets/phone_mockup.dart';
+import 'controllers/call_controller.dart';
+import 'widgets/call_widgets.dart';
 
 class Screen1D extends StatefulWidget {
   const Screen1D({this.large = false, super.key});
@@ -13,9 +15,13 @@ class Screen1D extends StatefulWidget {
 }
 
 class _Screen1DState extends State<Screen1D> {
-  String _mode = 'Video';
-  bool _muted = false;
-  bool _cameraOn = true;
+  final _controller = CallController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => PhoneMockup(
@@ -40,110 +46,103 @@ class _Screen1DState extends State<Screen1D> {
               ),
             ],
           ),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            width: double.infinity,
-            height: _mode == 'Video' ? 200 : 108,
+          Stack(
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: const Color(0xFFD6F3EC),
-              borderRadius: BorderRadius.circular(_mode == 'Video' ? 24 : 100),
-              border: Border.all(color: const Color(0xFFE3ECEA)),
-            ),
-            child: Container(
-              width: _mode == 'Video' ? 96 : 72,
-              height: _mode == 'Video' ? 96 : 72,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: Color(0x29F4877B),
-                shape: BoxShape.circle,
-              ),
-              child: const Text(
-                'M',
-                style: TextStyle(
-                  color: Color(0xFFF4877B),
-                  fontSize: 36,
-                  fontWeight: FontWeight.w800,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                width: double.infinity,
+                height: _controller.mode == 'Video' ? 200 : 108,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD6F3EC),
+                  borderRadius: BorderRadius.circular(
+                    _controller.mode == 'Video' ? 24 : 100,
+                  ),
+                  border: Border.all(color: const Color(0xFFE3ECEA)),
                 ),
-              ),
-            ),
-          ),
-          if (_mode == 'Video')
-            const Align(
-              alignment: Alignment.centerRight,
-              child: Chip(
-                label: Text('You', style: TextStyle(fontSize: 9)),
-                visualDensity: VisualDensity.compact,
-              ),
-            ),
-          Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: const Color(0xFFE3ECEA)),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                for (final type in ['Voice', 'Video'])
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => setState(() => _mode = type),
-                      style: TextButton.styleFrom(
-                        backgroundColor: _mode == type
-                            ? const Color(0xFF5FD0BF)
-                            : Colors.transparent,
-                        foregroundColor: _mode == type
-                            ? Colors.white
-                            : const Color(0xFF6B7886),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(11),
-                        ),
-                      ),
-                      child: Text(type),
+                child: Container(
+                  width: _controller.mode == 'Video' ? 96 : 72,
+                  height: _controller.mode == 'Video' ? 96 : 72,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    color: Color(0x29F4877B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Text(
+                    'M',
+                    style: TextStyle(
+                      color: Color(0xFFF4877B),
+                      fontSize: 36,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-              ],
-            ),
+                ),
+              ),
+              if (_controller.mode == 'Video')
+                Positioned(
+                  top: 0,
+                  right: 14,
+                  child: Container(
+                    width: 64,
+                    height: 92,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: const Color(0xFFF4877B)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Text(
+                      'You',
+                      style: TextStyle(color: Color(0xFF6B7886), fontSize: 9),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          CallSegmentedControl(
+            mode: _controller.mode,
+            onChanged: (value) => setState(() => _controller.setMode(value)),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _controlButton(
-                _muted ? Icons.mic_off : Icons.mic,
-                _muted ? 'Unmute microphone' : 'Mute microphone',
-                () => setState(() => _muted = !_muted),
-                active: _muted,
+              CallControlButton(
+                icon: _controller.muted ? Icons.mic_off : Icons.mic,
+                tooltip: _controller.muted
+                    ? 'Unmute microphone'
+                    : 'Mute microphone',
+                onPressed: () => setState(() => _controller.toggleMuted()),
+                active: _controller.muted,
               ),
-              if (_mode == 'Video') ...[
+              if (_controller.mode == 'Video') ...[
                 const SizedBox(width: 9),
-                _controlButton(
-                  _cameraOn ? Icons.videocam : Icons.videocam_off,
-                  _cameraOn ? 'Turn camera off' : 'Turn camera on',
-                  () => setState(() => _cameraOn = !_cameraOn),
-                  active: !_cameraOn,
+                CallControlButton(
+                  icon: _controller.cameraOn
+                      ? Icons.videocam
+                      : Icons.videocam_off,
+                  tooltip: _controller.cameraOn
+                      ? 'Turn camera off'
+                      : 'Turn camera on',
+                  onPressed: () => setState(() => _controller.toggleCamera()),
+                  active: !_controller.cameraOn,
                 ),
               ],
               const SizedBox(width: 9),
-              _controlButton(
-                Icons.volume_up,
-                'Speaker',
-                () => showAppNotice(context, 'Speaker is on'),
+              CallControlButton(
+                icon: Icons.volume_up,
+                tooltip: 'Speaker',
+                onPressed: () => showAppNotice(context, 'Speaker is on'),
               ),
               const SizedBox(width: 9),
-              _controlButton(
-                Icons.call_end,
-                'End call',
-                _endCall,
+              CallControlButton(
+                icon: Icons.call_end,
+                tooltip: 'End call',
+                onPressed: _endCall,
                 danger: true,
               ),
             ],
           ),
-          if (_muted || !_cameraOn)
-            Text(
-              _muted ? 'Microphone muted' : 'Camera off',
-              style: const TextStyle(color: Color(0xFF6B7886), fontSize: 10),
-            ),
           const SizedBox(height: 2),
         ],
       ),
@@ -164,35 +163,4 @@ class _Screen1DState extends State<Screen1D> {
     showAppNotice(context, 'Call ended · Session notes saved');
     Navigator.of(context).pushReplacementNamed('/2D');
   }
-
-  Widget _controlButton(
-    IconData icon,
-    String label,
-    VoidCallback onPressed, {
-    bool active = false,
-    bool danger = false,
-  }) => Tooltip(
-    message: label,
-    child: Material(
-      color: danger
-          ? const Color(0xFFD9483B)
-          : active
-          ? const Color(0x29F4877B)
-          : Colors.white,
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onPressed,
-        customBorder: const CircleBorder(),
-        child: SizedBox(
-          width: 43,
-          height: 43,
-          child: Icon(
-            icon,
-            color: danger ? Colors.white : const Color(0xFF1D2733),
-            size: 18,
-          ),
-        ),
-      ),
-    ),
-  );
 }

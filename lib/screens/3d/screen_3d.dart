@@ -1,17 +1,30 @@
 import 'package:flutter/material.dart';
 
-import '../../state/coaching_scope.dart';
 import '../../widgets/coaching_widgets.dart';
 import '../../widgets/phone_mockup.dart';
+import 'controllers/booking_controller.dart';
+import 'widgets/booking_widgets.dart';
 
-class Screen3D extends StatelessWidget {
+class Screen3D extends StatefulWidget {
   const Screen3D({this.large = false, super.key});
 
   final bool large;
 
   @override
+  State<Screen3D> createState() => _Screen3DState();
+}
+
+class _Screen3DState extends State<Screen3D> {
+  final _controller = BookingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final state = CoachingScope.of(context);
     const days = ['Today', 'Fri 16', 'Sat 17', 'Sun 18'];
     const times = [
       '5:00 PM',
@@ -24,71 +37,49 @@ class Screen3D extends StatelessWidget {
     return PhoneMockup(
       screenId: '3D',
       title: 'Book a session',
-      large: large,
+      large: widget.large,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ScreenHeading('Book a session'),
-          UiCard(
-            child: const Row(
-              children: [
-                AvatarBadge('M', small: true),
-                SizedBox(width: 9),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Coach Mohamed',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
-                        'Strength & hypertrophy',
-                        style: TextStyle(
-                          color: Color(0xFF6B7886),
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          ScreenHeading(
+            'Book a session',
+            trailing: IconButton(
+              tooltip: 'Close',
+              onPressed: () => Navigator.of(context).maybePop(),
+              icon: const Icon(Icons.close, size: 18),
             ),
           ),
-          _label('Session type'),
+          const BookingCoachCard(),
+          const BookingSectionLabel('Session type'),
           Row(
             children: [
               for (final type in ['Video', 'Voice'])
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(right: 5),
-                    child: _choice(
-                      type,
-                      type == state.bookingType,
-                      () => state.setBookingType(type),
+                    child: BookingChoice(
+                      text: type,
+                      selected: type == _controller.type,
+                      onTap: () => setState(() => _controller.setType(type)),
                     ),
                   ),
                 ),
             ],
           ),
-          _label('Pick a day'),
+          const BookingSectionLabel('Pick a day'),
           Wrap(
             spacing: 5,
             runSpacing: 5,
             children: [
               for (final day in days)
-                _choice(
-                  day,
-                  day == state.bookingDay,
-                  () => state.setBookingDay(day),
+                BookingChoice(
+                  text: day,
+                  selected: day == _controller.day,
+                  onTap: () => setState(() => _controller.setDay(day)),
                 ),
             ],
           ),
-          _label('Available times'),
+          const BookingSectionLabel('Available times'),
           GridView.count(
             crossAxisCount: 3,
             shrinkWrap: true,
@@ -98,20 +89,22 @@ class Screen3D extends StatelessWidget {
             childAspectRatio: 2.25,
             children: [
               for (final time in times)
-                _choice(
-                  time,
-                  time == state.bookingTime,
-                  time == '9:00 PM' ? null : () => state.setBookingTime(time),
+                BookingChoice(
+                  text: time,
+                  selected: time == _controller.time,
+                  onTap: time == '9:00 PM'
+                      ? null
+                      : () => setState(() => _controller.setTime(time)),
                   disabled: time == '9:00 PM',
                 ),
             ],
           ),
           const SizedBox(height: 12),
           PrimaryButton(
-            label: 'Confirm · ${state.bookingDay}, ${state.bookingTime}',
+            label: 'Confirm · ${_controller.day}, ${_controller.time}',
             onPressed: () => showAppNotice(
               context,
-              'Booked ${state.bookingType.toLowerCase()} session · ${state.bookingDay}, ${state.bookingTime}',
+              'Booked ${_controller.type.toLowerCase()} session · ${_controller.day}, ${_controller.time}',
             ),
           ),
           const SizedBox(height: 8),
@@ -125,47 +118,4 @@ class Screen3D extends StatelessWidget {
       ),
     );
   }
-
-  Widget _label(String text) => Padding(
-    padding: const EdgeInsets.only(top: 11, bottom: 6),
-    child: Text(
-      text,
-      style: const TextStyle(color: Color(0xFF6B7886), fontSize: 10),
-    ),
-  );
-
-  Widget _choice(
-    String text,
-    bool selected,
-    VoidCallback? onTap, {
-    bool disabled = false,
-  }) => InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(11),
-    child: Container(
-      constraints: const BoxConstraints(minHeight: 34),
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: selected ? const Color(0xFF5FD0BF) : Colors.white,
-        border: Border.all(
-          color: selected ? const Color(0xFF5FD0BF) : const Color(0xFFE3ECEA),
-        ),
-        borderRadius: BorderRadius.circular(11),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: disabled
-              ? const Color(0xFFB7C0C2)
-              : selected
-              ? Colors.white
-              : const Color(0xFF1D2733),
-          fontSize: 9,
-          fontWeight: FontWeight.w600,
-          decoration: disabled ? TextDecoration.lineThrough : null,
-        ),
-      ),
-    ),
-  );
 }

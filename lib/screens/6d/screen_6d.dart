@@ -1,104 +1,89 @@
 import 'package:flutter/material.dart';
 
-import '../../state/coaching_scope.dart';
 import '../../widgets/coaching_widgets.dart';
 import '../../widgets/phone_mockup.dart';
+import 'controllers/plan_editor_controller.dart';
+import 'models/plan_exercise_model.dart';
+import 'widgets/plan_editor_widgets.dart';
+import 'widgets/plan_summary_stat.dart';
 
-class Screen6D extends StatelessWidget {
+class Screen6D extends StatefulWidget {
   const Screen6D({this.large = false, super.key});
 
   final bool large;
 
   @override
+  State<Screen6D> createState() => _Screen6DState();
+}
+
+class _Screen6DState extends State<Screen6D> {
+  final _controller = PlanEditorController([65, 50, 22]);
+  final _exercises = const [
+    PlanExerciseModel(name: 'Bench Press', initialLoad: 65),
+    PlanExerciseModel(name: 'Chest Press', initialLoad: 50),
+    PlanExerciseModel(name: 'Incline DB', initialLoad: 22),
+  ];
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final state = CoachingScope.of(context);
-    const exercises = ['Bench Press', 'Chest Press', 'Incline DB'];
     return PhoneMockup(
       screenId: '6D',
       title: 'Client & plan editor',
-      large: large,
+      large: widget.large,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ScreenHeading(
-            'Ahmed M.',
-            trailing: const StatusPill('In gym', positive: true),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 0, bottom: 10),
-            child: Text(
-              'Member ID · 20418',
-              style: TextStyle(color: Color(0xFF6B7886), fontSize: 9),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                const AvatarBadge('A', small: true),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ahmed M.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        'Member ID · 20418',
+                        style: TextStyle(color: Color(0xFF6B7886), fontSize: 9),
+                      ),
+                    ],
+                  ),
+                ),
+                const StatusPill('In gym', positive: true),
+              ],
             ),
           ),
           Row(
             children: [
-              _stat('12', 'Visits'),
+              const PlanSummaryStat(value: '12', label: 'Visits'),
               const SizedBox(width: 6),
-              _stat('28', 'Workouts'),
+              const PlanSummaryStat(value: '28', label: 'Workouts'),
               const SizedBox(width: 6),
-              _stat('65', 'Bench PR'),
+              const PlanSummaryStat(value: '65', label: 'Bench PR'),
             ],
           ),
-          UiCard(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Next week plan',
-                      style: TextStyle(
-                        color: Color(0xFF6B7886),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-                for (var index = 0; index < exercises.length; index++)
-                  Container(
-                    constraints: const BoxConstraints(minHeight: 42),
-                    decoration: const BoxDecoration(
-                      border: Border(top: BorderSide(color: Color(0xFFE3ECEA))),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            exercises[index],
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                        ),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          tooltip: 'Decrease ${exercises[index]}',
-                          onPressed: () => state.adjustLoad(index, -2.5),
-                          icon: const Icon(Icons.remove, size: 15),
-                        ),
-                        SizedBox(
-                          width: 48,
-                          child: Text(
-                            '${state.loads[index].toStringAsFixed(state.loads[index] % 1 == 0 ? 0 : 1)} kg',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          tooltip: 'Increase ${exercises[index]}',
-                          onPressed: () => state.adjustLoad(index, 2.5),
-                          icon: const Icon(Icons.add, size: 15),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) => PlanSummaryCard(
+              exercises: _exercises,
+              loads: _controller.loads,
+              onAdjust: (index, delta) {
+                _controller.adjust(index, delta);
+              },
             ),
           ),
           PrimaryButton(
@@ -134,22 +119,4 @@ class Screen6D extends StatelessWidget {
       ),
     );
   }
-
-  Widget _stat(String value, String label) => Expanded(
-    child: UiCard(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          Text(
-            label,
-            style: const TextStyle(color: Color(0xFF6B7886), fontSize: 8),
-          ),
-        ],
-      ),
-    ),
-  );
 }

@@ -25,10 +25,12 @@ class PhoneMockup extends StatelessWidget {
         screenId == '8A' || const {'1D', '2D', '3D'}.contains(screenId);
     final activeRoute = switch (screenId) {
       '8A' => '/8A',
-      '1D' || '2D' => '/2D',
-      '3D' => '/3D',
-      '6D' || '9D' => '/5D',
-      '8D' => '/7D',
+      '1D' || '2D' || '3D' => '/8A',
+      '4D' => '/4D',
+      '5D' || '6D' => '/5D',
+      '7D' || '8D' => '/7D',
+      '9D' => '/9D',
+      '10D' => '/10D',
       _ => '/$screenId',
     };
 
@@ -142,9 +144,18 @@ class PhoneMockup extends StatelessWidget {
               Expanded(
                 child: _nav(
                   context,
-                  Icons.event_available_outlined,
-                  'Book',
-                  '/3D',
+                  Icons.fitness_center,
+                  'Train',
+                  '/2D',
+                  activeRoute,
+                ),
+              ),
+              Expanded(
+                child: _nav(
+                  context,
+                  Icons.local_cafe,
+                  'Bar',
+                  '/2D',
                   activeRoute,
                 ),
               ),
@@ -152,7 +163,7 @@ class PhoneMockup extends StatelessWidget {
                 child: _nav(
                   context,
                   Icons.person_outline,
-                  'My coach',
+                  'Coach',
                   '/8A',
                   activeRoute,
                 ),
@@ -160,9 +171,9 @@ class PhoneMockup extends StatelessWidget {
               Expanded(
                 child: _nav(
                   context,
-                  Icons.swap_horiz,
-                  'Coach view',
-                  '/4D',
+                  Icons.settings_outlined,
+                  'Profile',
+                  '/10D',
                   activeRoute,
                 ),
               ),
@@ -198,9 +209,9 @@ class PhoneMockup extends StatelessWidget {
               Expanded(
                 child: _nav(
                   context,
-                  Icons.swap_horiz,
-                  'Member view',
-                  '/2D',
+                  Icons.local_cafe_outlined,
+                  'Bar',
+                  '/4D',
                   activeRoute,
                 ),
               ),

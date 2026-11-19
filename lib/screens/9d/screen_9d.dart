@@ -1,21 +1,35 @@
 import 'package:flutter/material.dart';
 
-import '../../state/coaching_scope.dart';
 import '../../widgets/coaching_widgets.dart';
 import '../../widgets/phone_mockup.dart';
+import 'controllers/coach_booking_controller.dart';
+import 'widgets/booking_request_card.dart';
+import 'widgets/coach_booking_widgets.dart';
 
-class Screen9D extends StatelessWidget {
+class Screen9D extends StatefulWidget {
   const Screen9D({this.large = false, super.key});
 
   final bool large;
 
   @override
+  State<Screen9D> createState() => _Screen9DState();
+}
+
+class _Screen9DState extends State<Screen9D> {
+  final _controller = CoachBookingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final state = CoachingScope.of(context);
     return PhoneMockup(
       screenId: '9D',
       title: 'Online training',
-      large: large,
+      large: widget.large,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -36,7 +50,7 @@ class Screen9D extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        state.acceptingBookings
+                        _controller.acceptingBookings
                             ? '5 online clients · 3 sessions today'
                             : 'Bookings are paused',
                         style: const TextStyle(
@@ -48,15 +62,16 @@ class Screen9D extends StatelessWidget {
                   ),
                 ),
                 Switch.adaptive(
-                  value: state.acceptingBookings,
-                  onChanged: (_) => state.toggleBookings(),
+                  value: _controller.acceptingBookings,
+                  onChanged: (_) =>
+                      setState(() => _controller.toggleBookings()),
                   activeTrackColor: const Color(0xFF5FD0BF),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ],
             ),
           ),
-          if (!state.acceptingBookings)
+          if (!_controller.acceptingBookings)
             const Padding(
               padding: EdgeInsets.only(left: 2, bottom: 8),
               child: Text(
@@ -64,59 +79,8 @@ class Screen9D extends StatelessWidget {
                 style: TextStyle(color: Color(0xFFBF7414), fontSize: 9),
               ),
             ),
-          UiCard(
-            borderColor: const Color(0x99F4877B),
-            child: Column(
-              children: [
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Next · 7:30 PM',
-                        style: TextStyle(
-                          color: Color(0xFF6B7886),
-                          fontSize: 10,
-                        ),
-                      ),
-                    ),
-                    StatusPill('Video', positive: true),
-                  ],
-                ),
-                const SizedBox(height: 9),
-                const Row(
-                  children: [
-                    AvatarBadge('S', small: true),
-                    SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Sara K.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          'Legs · 45 min',
-                          style: TextStyle(
-                            color: Color(0xFF6B7886),
-                            fontSize: 9,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 9),
-                PrimaryButton(
-                  label: 'Start session',
-                  compact: true,
-                  onPressed: () => Navigator.of(context).pushNamed('/1D'),
-                ),
-              ],
-            ),
+          NextCoachSessionCard(
+            onStart: () => Navigator.of(context).pushNamed('/1D'),
           ),
           UiCard(
             padding: const EdgeInsets.all(9),
@@ -146,73 +110,17 @@ class Screen9D extends StatelessWidget {
               ],
             ),
           ),
-          if (state.requestDecision == null)
-            UiCard(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'New request',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Nour A. · Fri 4:00 PM · Video',
-                    style: TextStyle(color: Color(0xFF6B7886), fontSize: 9),
-                  ),
-                  const SizedBox(height: 9),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: PrimaryButton(
-                          label: 'Decline',
-                          outline: true,
-                          compact: true,
-                          onPressed: () {
-                            state.decideRequest('Declined');
-                            showAppNotice(context, 'Booking request declined');
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 7),
-                      Expanded(
-                        child: PrimaryButton(
-                          label: 'Accept',
-                          compact: true,
-                          onPressed: () {
-                            state.decideRequest('Accepted');
-                            showAppNotice(
-                              context,
-                              'Nour’s session request accepted',
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            )
-          else
-            UiCard(
-              child: Row(
-                children: [
-                  Text(
-                    state.requestDecision!,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const Spacer(),
-                  const Text(
-                    'Nour A. · Fri 4:00 PM · Video',
-                    style: TextStyle(color: Color(0xFF6B7886), fontSize: 9),
-                  ),
-                ],
-              ),
-            ),
+          BookingRequestCard(
+            decision: _controller.requestDecision,
+            onDecline: () {
+              setState(() => _controller.decideRequest('Declined'));
+              showAppNotice(context, 'Booking request declined');
+            },
+            onAccept: () {
+              setState(() => _controller.decideRequest('Accepted'));
+              showAppNotice(context, 'Nour’s session request accepted');
+            },
+          ),
         ],
       ),
     );

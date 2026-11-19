@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../state/coaching_scope.dart';
 import '../../widgets/coaching_widgets.dart';
 import '../../widgets/phone_mockup.dart';
+import 'controllers/client_chat_controller.dart';
+import 'widgets/client_chat_widgets.dart';
 
 class Screen7D extends StatefulWidget {
   const Screen7D({this.large = false, super.key});
@@ -14,7 +16,7 @@ class Screen7D extends StatefulWidget {
 }
 
 class _Screen7DState extends State<Screen7D> {
-  final _controller = TextEditingController();
+  final _controller = ClientChatController();
 
   @override
   void dispose() {
@@ -23,7 +25,7 @@ class _Screen7DState extends State<Screen7D> {
   }
 
   void _send([String? suggestion]) {
-    final text = suggestion ?? _controller.text;
+    final text = suggestion ?? _controller.messageController.text;
     if (text.trim().isEmpty) {
       showAppNotice(context, 'Type a message first.');
       return;
@@ -42,40 +44,7 @@ class _Screen7DState extends State<Screen7D> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const AvatarBadge('A', small: true),
-              const SizedBox(width: 7),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Ahmed M.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      '● Online plan',
-                      style: TextStyle(color: Color(0xFF1F9A85), fontSize: 9),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                tooltip: 'Voice call',
-                onPressed: () => Navigator.of(context).pushNamed('/1D'),
-                icon: const Icon(Icons.call_outlined, size: 18),
-              ),
-              IconButton(
-                tooltip: 'Video call',
-                onPressed: () => Navigator.of(context).pushNamed('/1D'),
-                icon: const Icon(Icons.videocam_outlined, size: 18),
-              ),
-            ],
-          ),
+          const ChatHeader(),
           const Divider(height: 15, color: Color(0xFFE3ECEA)),
           for (final message in state.clientMessages)
             if (message.callNote)
@@ -135,10 +104,13 @@ class _Screen7DState extends State<Screen7D> {
             child: Wrap(
               spacing: 5,
               children: [
-                _quickReply('Send plan', 'Here is your updated plan.'),
-                _quickReply(
-                  'Ask for video',
-                  'Can you send a form-check video?',
+                ChatQuickReply(
+                  label: 'Send plan',
+                  onPressed: () => _send('Here is your updated plan.'),
+                ),
+                ChatQuickReply(
+                  label: 'Ask for video',
+                  onPressed: () => _send('Can you send a form-check video?'),
                 ),
               ],
             ),
@@ -147,10 +119,10 @@ class _Screen7DState extends State<Screen7D> {
             children: [
               Expanded(
                 child: TextField(
-                  controller: _controller,
+                  controller: _controller.messageController,
                   onSubmitted: (_) => _send(),
                   decoration: const InputDecoration(
-                    hintText: 'Type a message…',
+                    hintText: 'Type a message...',
                     hintStyle: TextStyle(
                       color: Color(0xFF6B7886),
                       fontSize: 10,
@@ -174,12 +146,4 @@ class _Screen7DState extends State<Screen7D> {
       ),
     );
   }
-
-  Widget _quickReply(String label, String reply) => ActionChip(
-    label: Text(label, style: const TextStyle(fontSize: 9)),
-    onPressed: () => _send(reply),
-    backgroundColor: Colors.white,
-    side: const BorderSide(color: Color(0xFFE3ECEA)),
-    visualDensity: VisualDensity.compact,
-  );
 }

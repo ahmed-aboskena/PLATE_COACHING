@@ -50,11 +50,12 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester);
-    await tester.tap(find.text('Coach view'));
+    await tester.tap(find.text('Coach'));
     await tester.pumpAndSettle();
-    expect(find.text('Coach Mohamed'), findsOneWidget);
+    expect(find.text('Mohamed Ali'), findsOneWidget);
 
-    await tester.tap(find.text('Member view'));
+    Navigator.of(tester.element(find.byType(Scaffold).first))
+        .pushReplacementNamed('/2D');
     await tester.pumpAndSettle();
     expect(find.text('Online training'), findsOneWidget);
   });
@@ -63,7 +64,7 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester);
-    await tester.tap(find.text('Book').last);
+    Navigator.of(tester.element(find.byType(Scaffold).first)).pushNamed('/3D');
     await tester.pumpAndSettle();
     expect(find.text('Book a session'), findsOneWidget);
 
@@ -79,7 +80,7 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester);
-    await tester.tap(find.text('My coach'));
+    await tester.tap(find.text('Coach'));
     await tester.pumpAndSettle();
 
     expect(
@@ -126,7 +127,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Turn camera off'));
     await tester.pumpAndSettle();
-    expect(find.text('Camera off'), findsOneWidget);
+    expect(find.byTooltip('Turn camera on'), findsOneWidget);
 
     Navigator.of(tester.element(find.byType(Scaffold).first)).pop();
     await tester.pumpAndSettle();
