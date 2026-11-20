@@ -46,16 +46,8 @@ class _Screen8DState extends State<Screen8D> {
           for (final coach in _controller.visibleCoaches)
             CoachDirectoryCard(
               coach: coach,
-              onMessage: () {
-                if (coach.status != 'Online') {
-                  showAppNotice(
-                    context,
-                    '${coach.name} is ${coach.status.toLowerCase()} right now',
-                  );
-                } else {
-                  Navigator.of(context).pushNamed('/7D');
-                }
-              },
+              onMessage: () =>
+                  Navigator.of(context).pushNamed('/7D', arguments: coach.name),
             ),
           if (_controller.visibleCoaches.isEmpty)
             const Center(

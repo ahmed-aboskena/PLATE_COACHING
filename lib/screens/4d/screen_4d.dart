@@ -36,12 +36,12 @@ class Screen4D extends StatelessWidget {
             CoachShortcutCard(
               icon: Icons.fitness_center,
               label: 'Train',
-              onTap: () => Navigator.of(context).pushNamed('/2D'),
+              onTap: () => Navigator.of(context).pushNamed('/coach-train'),
             ),
             CoachShortcutCard(
               icon: Icons.local_cafe_outlined,
               label: 'Bar',
-              onTap: () => showAppNotice(context, 'Bar area is not available'),
+              onTap: () => Navigator.of(context).pushNamed('/coach-bar'),
             ),
             CoachShortcutCard(
               icon: Icons.videocam,

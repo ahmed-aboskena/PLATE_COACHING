@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
+import '../../../state/coaching_state.dart';
 import '../../../widgets/coaching_widgets.dart';
 
 class ChatQuickReply extends StatelessWidget {
@@ -17,30 +19,44 @@ class ChatQuickReply extends StatelessWidget {
     label: Text(label, style: const TextStyle(fontSize: 9)),
     onPressed: onPressed,
     backgroundColor: Colors.white,
-    side: const BorderSide(color: Color(0xFFE3ECEA)),
+    side: const BorderSide(color: AppTheme.line),
     visualDensity: VisualDensity.compact,
   );
 }
 
 class ChatHeader extends StatelessWidget {
-  const ChatHeader({super.key});
+  const ChatHeader({required this.contact, required this.onBack, super.key});
+
+  final CoachingContact contact;
+  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      const AvatarBadge('A', small: true),
+      IconButton(
+        tooltip: 'Back to chats',
+        visualDensity: VisualDensity.compact,
+        onPressed: onBack,
+        icon: const Icon(Icons.arrow_back, size: 18),
+      ),
+      AvatarBadge(contact.initial, small: true),
       const SizedBox(width: 7),
-      const Expanded(
+      Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ahmed M.',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+              contact.name,
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
             ),
             Text(
-              '● Online plan',
-              style: TextStyle(color: Color(0xFF1F9A85), fontSize: 9),
+              '${contact.status} · ${contact.type}',
+              style: TextStyle(
+                color: contact.status == 'Online'
+                    ? AppTheme.teal
+                    : AppTheme.mute,
+                fontSize: 9,
+              ),
             ),
           ],
         ),

@@ -31,6 +31,8 @@ class PhoneMockup extends StatelessWidget {
       '7D' || '8D' => '/7D',
       '9D' => '/9D',
       '10D' => '/10D',
+      'coach-bar' || 'coach-order' => '/coach-bar',
+      'coach-train' => '/coach-train',
       _ => '/$screenId',
     };
 
@@ -211,7 +213,7 @@ class PhoneMockup extends StatelessWidget {
                   context,
                   Icons.local_cafe_outlined,
                   'Bar',
-                  '/4D',
+                  '/coach-bar',
                   activeRoute,
                 ),
               ),

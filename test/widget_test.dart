@@ -29,6 +29,9 @@ void main() {
       '2D',
       '3D',
       '4D',
+      'coach-train',
+      'coach-bar',
+      'coach-order',
       '5D',
       '6D',
       '7D',
@@ -112,6 +115,8 @@ void main() {
     await tester.pumpAndSettle();
     Navigator.of(tester.element(find.byType(Scaffold).first)).pushNamed('/7D');
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Ahmed M.'));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Plan looks good');
     await tester.tap(find.byTooltip('Send message'));
     await tester.pumpAndSettle();
@@ -136,5 +141,49 @@ void main() {
     await tester.tap(find.byType(Switch).first);
     await tester.pumpAndSettle();
     expect(find.text('Bookings are paused'), findsOneWidget);
+  });
+
+  testWidgets('coach can reserve a bar order and track it across navigation', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    Navigator.of(tester.element(find.byType(Scaffold).first))
+        .pushReplacementNamed('/4D');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Bar').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Protein Shake'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Add Protein Shake'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Reserve · EGP 70'), findsOneWidget);
+    await tester.tap(find.textContaining('Reserve · EGP 70'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Order #214'), findsOneWidget);
+    expect(find.text('EGP 70'), findsOneWidget);
+
+    await tester.tap(find.text('Bar').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Order #214 · Preparing'), findsOneWidget);
+    await tester.tap(find.text('Track'));
+    await tester.pumpAndSettle();
+    expect(find.text('Protein Shake'), findsOneWidget);
+  });
+
+  testWidgets('coach Train opens a personal plan without coach selection', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    Navigator.of(tester.element(find.byType(Scaffold).first))
+        .pushReplacementNamed('/4D');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Train'));
+    await tester.pumpAndSettle();
+    expect(find.text('My training'), findsOneWidget);
+    expect(find.text('Pull · Back & arms'), findsOneWidget);
+    expect(find.text('Choose a coach'), findsNothing);
   });
 }

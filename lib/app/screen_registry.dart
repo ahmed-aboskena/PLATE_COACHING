@@ -3,6 +3,9 @@ import '../screens/1d/screen_1d.dart';
 import '../screens/2d/screen_2d.dart';
 import '../screens/3d/screen_3d.dart';
 import '../screens/4d/screen_4d.dart';
+import '../screens/4d/coach_bar_screen.dart';
+import '../screens/4d/coach_order_tracking_screen.dart';
+import '../screens/4d/coach_train_screen.dart';
 import '../screens/5d/screen_5d.dart';
 import '../screens/6d/screen_6d.dart';
 import '../screens/7d/screen_7d.dart';
@@ -50,6 +53,27 @@ abstract final class ScreenRegistry {
       builder: Screen4D.new,
     ),
     ScreenDefinition(
+      id: 'coach-train',
+      title: 'Personal training',
+      group: 'Coach',
+      description: 'Review your own training plan and weekly workouts.',
+      builder: CoachTrainScreen.new,
+    ),
+    ScreenDefinition(
+      id: 'coach-bar',
+      title: 'Gym bar',
+      group: 'Coach',
+      description: 'Browse the member bar menu, adjust your basket, and reserve an order.',
+      builder: CoachBarScreen.new,
+    ),
+    ScreenDefinition(
+      id: 'coach-order',
+      title: 'Order tracking',
+      group: 'Coach',
+      description: 'Track your reserved bar order and confirm pickup.',
+      builder: CoachOrderTrackingScreen.new,
+    ),
+    ScreenDefinition(
       id: '5D',
       title: 'My clients',
       group: 'Coach',
@@ -66,9 +90,9 @@ abstract final class ScreenRegistry {
     ),
     ScreenDefinition(
       id: '7D',
-      title: 'Chat with client',
+      title: 'Chats',
       group: 'Coach',
-      description: 'Continue the coaching conversation and send plan or form-check prompts.',
+      description: 'Browse conversations with your clients and fellow coaches.',
       builder: Screen7D.new,
     ),
     ScreenDefinition(
